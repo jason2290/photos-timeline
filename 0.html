@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>我的歷年 Google 相簿足跡</title>
+  <style>
+    :root {
+      --primary: #1a73e8;
+      --bg: #f8f9fa;
+      --card-bg: #ffffff;
+      --text: #202124;
+      --text-sub: #5f6368;
+      --border: #dadce0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      margin: 0;
+      padding: 30px 16px;
+    }
+
+    /* 密碼鎖定遮罩 */
+    #lock-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: #f8f9fa;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    .lock-box {
+      background: #ffffff;
+      padding: 32px 28px;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+      border: 1px solid var(--border);
+      text-align: center;
+      max-width: 320px;
+      width: 90%;
+    }
+
+    .lock-box h2 {
+      margin: 0 0 8px;
+      font-size: 20px;
+      color: #333;
+    }
+
+    .lock-box p {
+      font-size: 13px;
+      color: var(--text-sub);
+      margin: 0 0 20px;
+    }
+
+    .lock-input {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 16px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      box-sizing: border-box;
+      outline: none;
+      text-align: center;
+      letter-spacing: 2px;
+      margin-bottom: 12px;
+    }
+
+    .lock-input:focus {
+      border-color: var(--primary);
+    }
+
+    .lock-btn {
+      width: 100%;
+      padding: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+      background-color: var(--primary);
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .lock-btn:hover {
+      background-color: #1557b0;
+    }
+
+    .error-msg {
+      color: #d93025;
+      font-size: 13px;
+      margin-top: 10px;
+      display: none;
+    }
+
+    /* 主網頁內容（預設隱藏） */
+    .container {
+      max-width: 760px;
+      margin: 0 auto;
+      display: none; /* 驗證成功後顯示 */
+    }
+
+    header {
+      margin-bottom: 28px;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 26px;
+      margin-bottom: 6px;
+      color: var(--primary);
+    }
+
+    header p {
+      color: var(--text-sub);
+      font-size: 14px;
+      margin: 0;
+    }
+
+    /* 年份卡片手風琴 */
+    .year-item {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 12px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      transition: box-shadow 0.2s;
+    }
+
+    .year-item:hover {
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    }
+
+    .year-header {
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .year-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .year-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .year-summary {
+      font-size: 14px;
+      color: var(--text-sub);
+      margin-top: 2px;
+    }
+
+    .expand-icon {
+      font-size: 18px;
+      color: var(--text-sub);
+      transition: transform 0.25s ease;
+    }
+
+    /* 展開與折疊控制 */
+    .year-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease-out;
+      background-color: #fafbfd;
+      border-top: 1px solid transparent;
+    }
+
+    .year-item.active .year-content {
+      border-top-color: var(--border);
+    }
+
+    .year-item.active .expand-icon {
+      transform: rotate(180deg);
+    }
+
+    /* 相簿清單項目 */
+    .album-list {
+      list-style: none;
+      padding: 12px 20px;
+      margin: 0;
+    }
+
+    .album-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid #edf0f2;
+    }
+
+    .album-item:last-child {
+      border-bottom: none;
+    }
+
+    .album-name {
+      font-weight: 500;
+      color: #333;
+    }
+
+    .album-link {
+      color: var(--primary);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 4px;
+      background-color: #e8f0fe;
+      transition: background-color 0.2s;
+    }
+
+    .album-link:hover {
+      background-color: #d2e3fc;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 密碼輸入卡片 -->
+  <div id="lock-screen">
+    <div class="lock-box">
+      <h2>🔒 家庭相簿防護</h2>
+      <p>請輸入存取密碼以瀏覽相簿</p>
+      <input type="password" id="password-input" class="lock-input" placeholder="請輸入密碼" autofocus>
+      <button class="lock-btn" onclick="checkPassword()">解鎖瀏覽</button>
+      <div id="error-msg" class="error-msg">密碼錯誤，請重新輸入！</div>
+    </div>
+  </div>
+
+  <!-- 主內容區 -->
+  <div class="container" id="main-content">
+    <header>
+      <h1>📸 我的足跡相簿集</h1>
+      <p>整理歷年旅程與 Google 相簿共享連結</p>
+    </header>
+
+    <div id="timeline"></div>
+  </div>
+
+  <!-- 引入外部資料檔案 -->
+  <script src="data.js"></script>
+
+  <script>
+    // 1. 在這裡設定你想要的密碼
+    const CORRECT_PASSWORD = "8888"; 
+
+    const lockScreen = document.getElementById("lock-screen");
+    const mainContent = document.getElementById("main-content");
+    const passInput = document.getElementById("password-input");
+    const errorMsg = document.getElementById("error-msg");
+
+    // 檢查密碼邏輯
+    function checkPassword() {
+      const inputVal = passInput.value.trim();
+      if (inputVal === CORRECT_PASSWORD) {
+        // 驗證成功：存入 sessionStorage，當前分頁不再跳出密碼框
+        sessionStorage.setItem("album_auth", "true");
+        unlockView();
+      } else {
+        errorMsg.style.display = "block";
+        passInput.value = "";
+        passInput.focus();
+      }
+    }
+
+    // 支援按下 Enter 鍵送出
+    passInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") checkPassword();
+    });
+
+    // 解鎖並渲染相簿清單
+    function unlockView() {
+      lockScreen.style.display = "none";
+      mainContent.style.display = "block";
+      renderTimeline();
+    }
+
+    // 進入網頁時檢查是否已經解鎖過
+    if (sessionStorage.getItem("album_auth") === "true") {
+      unlockView();
+    }
+
+    // 渲染相簿
+    function renderTimeline() {
+      const timelineContainer = document.getElementById("timeline");
+      timelineContainer.innerHTML = "";
+
+      if (typeof albumData !== "undefined" && Array.isArray(albumData)) {
+        albumData.forEach((item) => {
+          const yearDiv = document.createElement("div");
+          yearDiv.className = "year-item";
+
+          const albumsHtml = item.albums.map(alb => `
+            <li class="album-item">
+              <span class="album-name">${alb.name}</span>
+              <a class="album-link" href="${alb.url}" target="_blank" rel="noopener noreferrer">開啟相簿 ↗</a>
+            </li>
+          `).join("");
+
+          yearDiv.innerHTML = `
+            <div class="year-header">
+              <div class="year-info">
+                <span class="year-title">${item.year} 年</span>
+                <span class="year-summary">${item.summary}</span>
+              </div>
+              <span class="expand-icon">▼</span>
+            </div>
+            <div class="year-content">
+              <ul class="album-list">
+                ${albumsHtml}
+              </ul>
+            </div>
+          `;
+
+          const header = yearDiv.querySelector(".year-header");
+          const content = yearDiv.querySelector(".year-content");
+
+          header.addEventListener("click", () => {
+            const isActive = yearDiv.classList.contains("active");
+            if (isActive) {
+              yearDiv.classList.remove("active");
+              content.style.maxHeight = null;
+            } else {
+              yearDiv.classList.add("active");
+              content.style.maxHeight = content.scrollHeight + "px";
+            }
+          });
+
+          timelineContainer.appendChild(yearDiv);
+        });
+      }
+    }
+  </script>
+</body>
+</html>
