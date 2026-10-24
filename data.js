@@ -5,10 +5,12 @@ const albumData = [
     summary: "希臘、長江三峽/張家界/鳳凰古城、嘉仁畢典、曼谷行、香港行、杜拜郵輪",
     albums: [
       { name: "2026.10 希臘", url: "https://photos.app.goo.gl/HnwNT5XVZxqS8HGLA" },
+      { name: "2026.10 希臘(2)", url: "https://photos.app.goo.gl/JbHvTvusF2P13tQa6" },
       { name: "2026.07 長江三峽,張家界,鳳凰古城", url: "https://photos.app.goo.gl/tXAgW9BXnbADxqVn8" },
       { name: "2026.06 嘉仁畢典", url: "https://photos.app.goo.gl/TkVUyEz8p9NCzjnM7" },
       { name: "2026.05 曼谷行", url: "https://photos.app.goo.gl/8ux7mi7c8ShwSJV6A" },
       { name: "2026.03 香港行", url: "https://photos.app.goo.gl/M3E9bPevJ7oSfixaA" },
+      { name: "2026.03 香港行(2)", url: "https://photos.app.goo.gl/M3E9bPevJ7oSfixaA" },
       { name: "2026.02 杜拜郵輪", url: "https://photos.app.goo.gl/eeFFL34ukpkrJL1JA" }
     ]
   },
